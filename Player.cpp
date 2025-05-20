@@ -10,7 +10,21 @@
 namespace coup{
 Player::Player(coup::Game& game,const string& name,const string& role)
 :game(game),name(name),role(role),numCoins(0),active(true){
-    game.add_player(name);
+    for(auto& p:game.getPlayers()){
+        if(p->getName()==name){
+            throw runtime_error("the player already exists");
+        }
+    }
+    if(name.empty()){
+        throw runtime_error("the name of the player cannot be empty");
+    }
+    if(role.empty()){
+        throw runtime_error("the role of the player cannot be empty");
+    }
+    if(role!="Governor" && role!="Spy" && role!="Baron" && role!="General" && role!="Judge" && role!="Merchant"){
+        throw runtime_error("the role of the player is not valid");
+    }
+    game.add_player(*this);
 }
 
 void Player::decreaseCoins(int n){

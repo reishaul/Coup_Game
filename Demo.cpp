@@ -106,23 +106,24 @@ int main() {
     }
 
     // ADDITIONS
+    cout<<"starting the second game\n"<<endl;
     Game game_2{};
 
-    Governor governor(game_2, "Haniel");
-    Spy spy(game_2, "Mom");
-    Baron baron(game_2, "Dad");
-    General general(game_2, "Dagan");
-    Judge judge(game_2, "Hadar");
-    Merchant Merchant(game_2, "Ron");
+    Governor governor2(game_2, "Haniel");
+    Spy spy2(game_2, "Mom");
+    Baron baron2(game_2, "Dad");
+    General general2(game_2, "Dagan");
+    Judge judge2(game_2, "Hadar");
+    Merchant merchant2(game_2, "Ron");
 
-    vector<string> players = game_2.players();
+    vector<string> players2 = game_2.players();
     
-    governor.gather();//gov=1
-    spy.gather();//spy=1
-    baron.gather();//baron=1
-    general.gather();//general=1
-    judge.gather();//judge=1
-    Merchant.gather();//Merchant=1
+    governor2.gather();//gov=1
+    spy2.gather();//spy=1
+    baron2.gather();//baron=1
+    general2.gather();//general=1
+    judge2.gather();//judge=1
+    merchant2.gather();//Merchant=1
 
     cout << "coins of the players after gathering" << endl;
     for(Player* p : game_2.getPlayers()){
@@ -130,11 +131,11 @@ int main() {
     }
     
 
-    // governor.tax();//gov=4
-    // spy.tax();//spy=1
-    // baron.tax();//baron=1
-    // general.tax();//general=1
-    // judge.tax();//judge=1
-    // Merchant.tax();//Merchant=1
+    governor2.tax();//gov=4
+    spy2.tax();//spy=1
+    baron2.tax();//baron=1
+    general2.tax();//general=1
+    judge2.tax();//judge=1
+    merchant2.tax();//Merchant=1
 
 }

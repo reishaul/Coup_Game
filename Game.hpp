@@ -14,20 +14,18 @@ const int MAX_PLAYERS = 6;
 class Game {
 private:
     bool is_over;  
-    int num_of_players;
-    int winner_index;
+    //int num_of_players;
+    //int winner_index;
     int turn_index;// the index of the player in the cuurent turn
 
-    int box=INT_MAX;
+    // std::vector<std::string>players_names;   
+    // std::vector<bool>is_active;// true אם השחקן עדיין במשחק
+    std::vector<Player*> players_pointers;//to store pointer the player object
 
-    std::vector<std::string>players_names;   
-    std::vector<bool>is_active;// true אם השחקן עדיין במשחק
-    std::vector<Player*> players_objects;//to store pointer the player object
-            
 public:
     Game(); 
 
-    void add_player(const std::string& name); // ניתן להוסיף שחקן למשחק
+    void add_player(Player& p); // ניתן להוסיף שחקן למשחק
 
     std::vector<std::string> players() const; 
     std::string turn() const;  
@@ -40,7 +38,7 @@ public:
     static std::string lastArrest;
     void set_active(const std::string& name, bool active);
 
-    const std::vector<Player*>& getPlayers() const { return players_objects; }
+    const std::vector<Player*>& getPlayers() const { return players_pointers; }
 };
 }
 
