@@ -12,7 +12,7 @@ int enemyCoins;
 
 public:
     Spy(coup::Game& game, const string& name);
-    void cancelAreest(Player& p);
+    void blockArrest(Player& p);
     void viewCoins(Player& p);
 };
 }

@@ -74,6 +74,15 @@ void Game::next_turn(){
     }while(!players_pointers[turn_index]->isActive());
 }
 
+void Game::back_turn(){
+    if(turn_index==0){
+        turn_index=players_pointers.size()-1;
+    }
+    else{
+        turn_index--;
+    }
+}
+
 void Game::set_active(const std::string& name, bool active) {
     for (size_t i = 0; i < players_pointers.size(); ++i) {
         if (players_pointers[i]->getName() == name) {

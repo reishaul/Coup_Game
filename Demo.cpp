@@ -132,10 +132,78 @@ int main() {
     
 
     governor2.tax();//gov=4
-    spy2.tax();//spy=1
-    baron2.tax();//baron=1
-    general2.tax();//general=1
-    judge2.tax();//judge=1
-    merchant2.tax();//Merchant=1
+    spy2.tax();//spy=3
+    baron2.tax();//baron=3
+    general2.tax();//general=3
+    judge2.tax();//judge=3
+    merchant2.tax();//Merchant=3
+
+
+    for(Player* p : game_2.getPlayers()){
+    cout << p->getName() << " " << p->coins() << endl;
+    }
+
+    governor2.tax();//gov=7
+    spy2.tax();//spy=5
+    baron2.invest();//baron=6
+    general2.tax();//general=5
+    judge2.tax();//judge=5
+    merchant2.tax();//Merchant=6
+
+    for(Player* p : game_2.getPlayers()){
+    cout << p->getName() << " " << p->coins() << endl;
+    }
+
+    governor2.tax();//gov=10
+    spy2.tax();//spy=7
+    spy2.blockArrest(governor2);//spy=7
+
+    baron2.invest();//baron=9
+    baron2.bribe();//baron=5
+    baron2.gather();//baron=6
+
+    general2.tax();//general=7
+    judge2.tax();//judge=7
+    merchant2.tax();//Merchant=9
+
+    for(Player* p : game_2.getPlayers()){
+    cout << p->getName() << " " << p->coins() << endl;
+    }
+
+    try{
+        governor2.arrest(baron2);
+    } catch (const std::exception &e) {
+        std::cerr << e.what() << '\n';
+    }
+    governor2.coup(spy2);//gov=3, spy is offline
+
+    try{//try to make operation with offline player
+        spy2.viewCoins(governor2);
+    } catch (const std::exception &e) {
+        std::cerr << e.what() << '\n';
+    }
+
+    try{//try to make arre
+        baron2.arrest(governor2);
+    } catch (const std::exception &e) {
+        std::cerr << e.what() << '\n';
+    }
+
+    baron2.tax();//baron=7
+    general2.cancelCoup(spy2);//general=2, spy=7
+
+    spy2.viewCoins(governor2);//now the spy can see the coins of the governor
+
+    judge2.tax();//judge=9
+    merchant2.tax();//Merchant=12
+
+    for(Player* p : game_2.getPlayers()){
+    cout << p->getName() << " " << p->coins() << endl;
+    }
+
+    //לעשות את החובה לבצע coup אם עשר מטבעות
+
+
+
 
 }

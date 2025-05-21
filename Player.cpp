@@ -36,11 +36,11 @@ void Player::decreaseCoins(int n){
 
     
 void Player::gather(){
+    check_coins();
     
     if(!(game.turn()==this->name)){
         std::string role_lower = this->role;
         std::transform(role_lower.begin(), role_lower.end(), role_lower.begin(), ::tolower);
-        //throw runtime_error("Not " + this->role + "'s turn");
         throw std::runtime_error("Not " + role_lower + "'s turn");
     }
     
@@ -57,8 +57,11 @@ void Player::gather(){
 }
 
 void Player::tax(){
+    check_coins();
+
     if(taxaccess){
         merchantBonus();
+
         numCoins=numCoins+2;
         lastAction="tax";
         game.next_turn();
@@ -70,17 +73,24 @@ void Player::tax(){
 }
 
 void Player::bribe(){
+    check_coins();
     merchantBonus();
     if(numCoins<4){
         throw runtime_error("the player dosen't have enough coins for bribe operation");
     }
-    numCoins=numCoins-4;
-    lastAction="bribe";
-    //game.next_turn();//without this line the turn is not continue
-    
+    else if(game.turn()!=this->name){
+        numCoins=numCoins-4;
+        lastAction="bribe";
+        game.back_turn();
+        cout<< getName() <<"("<<getRole()<<") do a bribe operation coins by using bribe operation"<<endl;
+    }
+    else{
+        throw runtime_error("this is already the player's turn");
+    }
 }
 
 void Player::arrest(Player& p){
+    check_coins();
     if(arrestAccess){
         if(p.active){
             if(p.lastArrest!=p.getName()){
@@ -88,8 +98,11 @@ void Player::arrest(Player& p){
                 if(p.getRole()=="Merchant"){
                     p.decreaseCoins(2);
                 }
+                else if(p.getRole()=="General"){//if it is general he get back his coin
+                    numCoins+=1;
+                }
                 else{
-                    p.numCoins--;
+                    p.decreaseCoins(1);
                     numCoins+=1;
                 }
                 lastAction="arrest";
@@ -105,6 +118,7 @@ void Player::arrest(Player& p){
 }
 
 void Player::sanction(Player& p){
+    check_coins();
     merchantBonus();
     if(numCoins<3){
         throw runtime_error("the player dosen't have enough coins for bribe operation");
@@ -161,6 +175,14 @@ int Player::substract(Player& p){
 
 void Player::undo(Player& p){
     cout<<"this role diden't have the ability to undo";
+}
+
+//We must check in the begining of each turn if the player has 10 coins-
+//cause if yes he must perform a coup operation
+void Player::check_coins(){
+    if(coins()>=10){
+        throw runtime_error("You are must make a coup operation");
+    }
 }
 
 

@@ -10,7 +10,7 @@ namespace coup{
 class General:public Player{
 public:
     General(coup::Game& game, const string& name);
-    void cancelCoup(Player& p, Player& target);
+    void cancelCoup(Player& target);
 
 };
 }

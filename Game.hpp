@@ -29,7 +29,8 @@ public:
 
     std::vector<std::string> players() const; 
     std::string turn() const;  
-    void next_turn(); 
+    void next_turn(); //go to the next turn
+    void back_turn();//return to the previous turn
 
     bool gameOver()const{return is_over;}
 

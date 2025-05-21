@@ -61,6 +61,7 @@ public:
     int addDistinct(Player& p);
     int substract(Player& p);
 
+    void check_coins();
 
 };
 }
