@@ -17,10 +17,8 @@ private:
     //int num_of_players;
     //int winner_index;
     int turn_index;// the index of the player in the cuurent turn
-
-    // std::vector<std::string>players_names;   
-    // std::vector<bool>is_active;// true אם השחקן עדיין במשחק
     std::vector<Player*> players_pointers;//to store pointer the player object
+    std::string lastArrest;
 
 public:
     Game(); 
@@ -35,11 +33,12 @@ public:
     bool gameOver()const{return is_over;}
 
     std::string winner() const;               // מחזיר את שם המנצח, או שגיאה אם המשחק לא נגמר
-
-    static std::string lastArrest;
-    void set_active(const std::string& name, bool active);
+    
+    ///void set_active(const std::string& name, bool active);
 
     const std::vector<Player*>& getPlayers() const { return players_pointers; }
+    std::string getLastArrest() const { return lastArrest; }
+    void setLastArrest(const std::string& n) { lastArrest = n; }
 };
 }
 

@@ -65,13 +65,21 @@ void Game::add_player(Player& p) {//(const string& name, Player* player)
 }
 
 void Game::next_turn(){
-    size_t num_active_players =players_pointers.size();
-    if(num_active_players==0){
-        throw std::runtime_error("there is no players left");
+    if (players_pointers.empty()) {
+    throw std::runtime_error("there are no players in the game");
     }
-    do{
-        turn_index=(turn_index+1)%num_active_players;
-    }while(!players_pointers[turn_index]->isActive());
+
+    size_t attempts = 0;
+    size_t total_players = players_pointers.size();
+
+    do {
+        turn_index = (turn_index + 1) % total_players;
+        attempts++;
+    } while (!players_pointers[turn_index]->isActive() && attempts <= total_players);
+
+    if (!players_pointers[turn_index]->isActive()) {
+        throw std::runtime_error("no active players left to take turn");
+    }
 }
 
 void Game::back_turn(){
@@ -82,16 +90,20 @@ void Game::back_turn(){
         turn_index--;
     }
 }
-
+/*
 void Game::set_active(const std::string& name, bool active) {
     for (size_t i = 0; i < players_pointers.size(); ++i) {
         if (players_pointers[i]->getName() == name) {
             players_pointers[i]->setActive(active);
+            cout << "Player " << name << " is now " << (active ? "active" : "inactive") << std::endl;
             return;
         }
     }
     throw std::runtime_error("player not found for set_player_active");
 }
+
+*/
+
 }
 
 

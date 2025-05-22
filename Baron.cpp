@@ -15,6 +15,7 @@ void Baron::invest(){
     game.next_turn();
     lastAction="invest";
     cout<< getName() <<" (Baron) traded its 3 coins and got 6 "<<endl;
+    openAccess();
 
 }
 }

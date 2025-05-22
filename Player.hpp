@@ -21,8 +21,6 @@ protected:
     string role;
     int numCoins;
     bool active;
-    
-    string lastArrest;
 
 public:
     Player(coup::Game& game, const string& name, const string& role);  // 
@@ -62,6 +60,9 @@ public:
     int substract(Player& p);
 
     void check_coins();
+    void openAccess();
+    void isActiveAndTurn();
+    
 
 };
 }

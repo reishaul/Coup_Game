@@ -2,7 +2,8 @@
 #include <iostream>
 #include <string>
 #include "Player.hpp"
-//#include "Game.hpp"
+#include "Game.hpp"
+
 
 #include <algorithm>
 #include <stdexcept>
@@ -36,6 +37,7 @@ void Player::decreaseCoins(int n){
 
     
 void Player::gather(){
+    //isActiveAndTurn();//check if it is the player turn and also if he is active
     check_coins();
     
     if(!(game.turn()==this->name)){
@@ -50,6 +52,7 @@ void Player::gather(){
         lastAction="gather";
         game.next_turn();
         cout<< getName() <<"("<<getRole()<<") took one coin by using gather operation"<<endl;
+        openAccess();
     }
     else{
         throw runtime_error("no access for gather operation");
@@ -57,15 +60,16 @@ void Player::gather(){
 }
 
 void Player::tax(){
+    //isActiveAndTurn();
     check_coins();
 
     if(taxaccess){
         merchantBonus();
-
         numCoins=numCoins+2;
         lastAction="tax";
         game.next_turn();
         cout<< getName() <<"("<<getRole()<<") took two coins by using tax operation"<<endl;
+        openAccess();
     }
     else{
         throw runtime_error("no access for tax operation");
@@ -73,8 +77,13 @@ void Player::tax(){
 }
 
 void Player::bribe(){
-    check_coins();
+
+    if(!isActive()){
+        throw runtime_error("cannot perform bribe- the player is not active");
+    }
+    check_coins();//check if the player have 10 or nore coins
     merchantBonus();
+
     if(numCoins<4){
         throw runtime_error("the player dosen't have enough coins for bribe operation");
     }
@@ -82,7 +91,7 @@ void Player::bribe(){
         numCoins=numCoins-4;
         lastAction="bribe";
         game.back_turn();
-        cout<< getName() <<"("<<getRole()<<") do a bribe operation coins by using bribe operation"<<endl;
+        cout<< getName() <<"("<<getRole()<<") do a bribe operation "<<endl;
     }
     else{
         throw runtime_error("this is already the player's turn");
@@ -90,56 +99,61 @@ void Player::bribe(){
 }
 
 void Player::arrest(Player& p){
+    //isActiveAndTurn();
     check_coins();
-    if(arrestAccess){
-        if(p.active){
-            if(p.lastArrest!=p.getName()){
-                merchantBonus();
-                if(p.getRole()=="Merchant"){
-                    p.decreaseCoins(2);
-                }
-                else if(p.getRole()=="General"){//if it is general he get back his coin
-                    numCoins+=1;
-                }
-                else{
-                    p.decreaseCoins(1);
-                    numCoins+=1;
-                }
-                lastAction="arrest";
-                p.status="arrest";
-                game.next_turn();
 
-            }
-            else throw runtime_error("cannot perform this operation two times constantly");
-        }
-        else throw runtime_error("the player is not active anymore");
+    if(!arrestAccess){
+        throw runtime_error("no access for arrest operation");
     }
-    throw runtime_error("there is no access to perform this operation");
+        
+    else if(game.getLastArrest()!=p.getName()){
+        merchantBonus();//if the player is merchant he get one coin
+        if(p.getRole()=="Merchant"){p.decreaseCoins(2);}
+        //if it is general he get back his coin
+        else if(p.getRole()=="General"){numCoins+=1;}
+        else{
+            p.decreaseCoins(1);
+            numCoins+=1;
+        }
+        lastAction="arrest";
+        p.status="arrest";
+        game.setLastArrest(p.getName());
+        cout<< getName() <<"("<<getRole()<<") performed an arrest operation against "<<p.getRole()<<endl;
+        game.next_turn();
+        openAccess();
+    }
+    else if(!p.isActive()){
+        throw runtime_error("the target player is already out of the game");
+    }
 }
 
 void Player::sanction(Player& p){
+    //isActiveAndTurn();
     check_coins();
     merchantBonus();
     if(numCoins<3){
         throw runtime_error("the player dosen't have enough coins for bribe operation");
     }
-    else if(p.active){
-        p.gatheraccess=false;
-        p.taxaccess=false;
-        
-        p.addCoins(addDistinct(p));//Baron on sanction get one coin as a compensation and the other no
-        numCoins=numCoins-substract(p);
 
-        lastAction="sanction";
-        p.status="sanction";
-        game.next_turn();
-        
-    }
-    else throw runtime_error("the player is not active anymore");
+    p.gatheraccess=false;
+    p.taxaccess=false;
+    
+    p.addCoins(addDistinct(p));//Baron on sanction get one coin as a compensation and the other no
+    numCoins=numCoins-substract(p);
+
+    lastAction="sanction";
+    p.status="sanction";
+    game.next_turn();
+    cout<< getName() <<"("<<getRole()<<") performed a sanction operation against "<<p.getRole()<<endl;
+    openAccess();
 }
 
 void Player::coup(Player& p){
+    //isActiveAndTurn();
     if(coupAccess){
+        // int a = ((game.turn_index)+1)%(game.players_pointers.size());
+        // string name=game.players_pointers[a]->getName();
+
         merchantBonus();
         if(numCoins<7){
             throw runtime_error("the player doesn't have enough coins for a coup operation");
@@ -148,13 +162,16 @@ void Player::coup(Player& p){
             throw runtime_error("the player is already out of the game");
         }
         numCoins=numCoins-7;
-        p.active=false;//לשאול האם צריך גם את השורה הזו?
-        p.game.set_active(p.getName(), false);//the player isn't active anymore
+        game.next_turn();
         
         lastAction="coup";
         p.status="coup";
-        game.next_turn();
+        
+        
+        p.setActive(false);
+        //game.back_turn();
         cout<< getName() <<"("<<getRole()<<") performed a coup against "<<p.getRole()<<endl;
+        openAccess();
     }
     else{
         throw runtime_error("no access for coup operation");
@@ -177,15 +194,33 @@ void Player::undo(Player& p){
     cout<<"this role diden't have the ability to undo";
 }
 
-//We must check in the begining of each turn if the player has 10 coins-
-//cause if yes he must perform a coup operation
+/*We must check in the begining of each turn if the player has 10 coins-
+cause if yes he must perform a coup operation*/
 void Player::check_coins(){
     if(coins()>=10){
         throw runtime_error("You are must make a coup operation");
     }
 }
 
+void Player::openAccess(){//this fuction create to open the access to the player for the next turn
+    arrestAccess=true;
+    taxaccess=true;
+    gatheraccess=true;
+}
 
+void Player::isActiveAndTurn(){
+    if(!(game.turn()==this->name)){
+    std::string role_lower = this->role;
+    std::transform(role_lower.begin(), role_lower.end(), role_lower.begin(), ::tolower);
+    throw std::runtime_error("Not " + role_lower + "'s turn");
+    }
+}
+
+// void Player::checkActive(){
+//     if(!isActive()){
+//         throw std::runtime_error ("cannot make operation when offline");
+//     }
+// }
 }
 
 

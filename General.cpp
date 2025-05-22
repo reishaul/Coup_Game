@@ -1,9 +1,9 @@
+//reishaul1@gmail.com
 #include <iostream>
 #include <stdexcept>
-
 #include "General.hpp"
 #include "Player.hpp"
-//#include "Game.hpp"
+
 
 using std::string;
 
@@ -16,14 +16,13 @@ void General::cancelCoup(Player& target){
         throw runtime_error("cannot cancel coup there is not enough coins");
     }
     else if(!target.isActive()){
-        game.set_active(target.getName(), true);
+
+        target.setActive(true);
         decreaseCoins(5);
     }
     else{
         throw runtime_error("cannot cancel coup on active player");
     }
-
-   
 
 }
 }

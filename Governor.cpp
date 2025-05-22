@@ -17,6 +17,7 @@ void Governor::tax() {
         std::cout<< getName() <<" (Governor) took three coins by using tax operation"<<endl;
         game.next_turn();
         lastAction="tax";
+        openAccess();
     }
     else{
         throw runtime_error("no access for tax operation");
@@ -32,8 +33,8 @@ void Governor::undo(Player& p){
 
     }
     else{
-        p.decreaseCoins(2);//return the coins that the player get 
-        cout<< getName() <<"(Governor) undo tax"<<endl;
+        p.decreaseCoins(2);//return the coins that the player get
+        cout<< getName() <<"(Governor) undo tax on "<<p.getName()<<endl;
     }
 
 }

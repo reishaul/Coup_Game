@@ -91,6 +91,8 @@ int main() {
     spy.gather();
     cout << baron.coins() << endl; // Expected: 7
     baron.coup(governor); // Coup against governor
+
+    //cout<<"the turn is: "<<game_1.turn()<<endl;
     
     general.gather();
     judge.gather();
@@ -156,7 +158,7 @@ int main() {
 
     governor2.tax();//gov=10
     spy2.tax();//spy=7
-    spy2.blockArrest(governor2);//spy=7
+    spy2.blockArrest(governor2);
 
     baron2.invest();//baron=9
     baron2.bribe();//baron=5
@@ -170,12 +172,12 @@ int main() {
     cout << p->getName() << " " << p->coins() << endl;
     }
 
-    try{
+    try{//try not to make coup with player that have 10 coins
         governor2.arrest(baron2);
     } catch (const std::exception &e) {
         std::cerr << e.what() << '\n';
     }
-    governor2.coup(spy2);//gov=3, spy is offline
+    governor2.coup(spy2);//gov=2, spy is offline
 
     try{//try to make operation with offline player
         spy2.viewCoins(governor2);
@@ -183,14 +185,22 @@ int main() {
         std::cerr << e.what() << '\n';
     }
 
-    try{//try to make arre
+    try{//try to make arrest twice on the same player
         baron2.arrest(governor2);
     } catch (const std::exception &e) {
         std::cerr << e.what() << '\n';
     }
+    cout<<"the turn:"<<game_2.turn()<<endl;
 
     baron2.tax();//baron=7
-    general2.cancelCoup(spy2);//general=2, spy=7
+
+    cout<<"spy2 is active: "<<spy2.isActive()<<endl;
+
+    
+    general2.cancelCoup(spy2);//general=3, spy=7
+    cout<<"is active: "<<spy2.isActive()<<endl;
+    
+    general2.tax();//general=4
 
     spy2.viewCoins(governor2);//now the spy can see the coins of the governor
 
@@ -201,9 +211,79 @@ int main() {
     cout << p->getName() << " " << p->coins() << endl;
     }
 
-    //לעשות את החובה לבצע coup אם עשר מטבעות
+    governor2.tax();//gov=4
+    cout<<"the turn is: "<<game_2.turn()<<endl;
+
+    spy2.gather();//spy=8
+    spy2.bribe();//spy=4
+    
+    judge2.undo(spy2);//turn continues to the next player
+    cout<<"the turn is: "<<game_2.turn()<<endl;//baron
+
+    
+    baron2.sanction(general2);//baron= 6
+
+    try{//try to make a finacnce operation
+    general2.tax();
+    } catch (const std::exception &e) {
+        std::cerr << e.what() << '\n';
+    }
+
+    try{//try to make a finacnce operation
+        general2.gather();
+    } catch (const std::exception &e) {
+        std::cerr << e.what() << '\n';
+    }
+
+    cout<<boolalpha<<general2.arrestAccess<<endl;
+    general2.arrest(judge2);//general=4,judge=8
+    judge2.tax();//judge=10
+
+    try{//cannot have 10 or more coins and not make coup operation
+        merchant2.tax();
+
+    }catch(const std::exception &e){
+        std::cerr<<e.what()<<'\n';
+    }
+    merchant2.coup(judge2);//Merchant=6;
+
+    for(Player* p : game_2.getPlayers()){
+    cout << p->getName() << " " << p->coins() << " " << p->isActive() << endl;
+    }
 
 
+   
+    try{//try to arrest the same player two times in sequence
+        governor2.arrest(judge2);
+    }catch(const std::exception &e){
+        std::cerr<<e.what()<<'\n';
+    }
+    governor2.tax();//gov=8
+    spy2.tax();//spy=6
+    governor2.undo(spy2);//spy=4
+    baron2.sanction(spy2);//baron=3
+    general2.tax();//general=7
+    merchant2.gather();//merchant=8
+
+    for(Player* p : game_2.getPlayers()){
+    cout << p->getName() << " " << p->coins() << " " << p->isActive() << endl;
+    }
+
+    governor2.coup(baron2);//gov=0
+    spy2.arrest(governor2);//spy=5
+       
+    try{//try to make operation with offline player
+        baron.gather();
+    }catch(const std::exception &e){
+        std::cerr<<e.what()<<'\n';
+    }
+    general2.gather();//gen=8
+    merchant2.gather();//mer=10
+
+    for(Player* p : game_2.getPlayers()){
+    cout << p->getName() << " " << p->coins() << " " << p->isActive() << endl;
+    }
+    //יש להוסיף בדיקה בכל פונקציה האם התור הנוכחי הוא של השחקן המבצע
 
 
 }
