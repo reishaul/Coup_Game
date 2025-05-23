@@ -1,3 +1,4 @@
+//reishaul1@gmail.com
 #ifndef GAME_HPP
 #define GAME_HPP
 
@@ -13,9 +14,7 @@ const int MAX_PLAYERS = 6;
 
 class Game {
 private:
-    bool is_over;  
-    //int num_of_players;
-    //int winner_index;
+
     int turn_index;// the index of the player in the cuurent turn
     std::vector<Player*> players_pointers;//to store pointer the player object
     std::string lastArrest;
@@ -30,11 +29,7 @@ public:
     void next_turn(); //go to the next turn
     void back_turn();//return to the previous turn
 
-    bool gameOver()const{return is_over;}
-
-    std::string winner() const;               // מחזיר את שם המנצח, או שגיאה אם המשחק לא נגמר
-    
-    ///void set_active(const std::string& name, bool active);
+    std::string winner() const;// מחזיר את שם המנצח, או שגיאה אם המשחק לא נגמר
 
     const std::vector<Player*>& getPlayers() const { return players_pointers; }
     std::string getLastArrest() const { return lastArrest; }

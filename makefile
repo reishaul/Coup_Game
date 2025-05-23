@@ -1,3 +1,4 @@
+#reishaul1@gmail.com
 CXX = g++
 CXXFLAGS = -std=c++17 -Wall -g
 LDFLAGS = -lsfml-graphics -lsfml-window -lsfml-system

@@ -1,3 +1,4 @@
+//reishaul1@gmail.com
 #ifndef JUDGE_HPP
 #define JUDGE_HPP
 

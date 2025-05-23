@@ -1,8 +1,8 @@
+//reishaul1@gmail.com
 #ifndef SPY_HPP
 #define SPY_HPP
 
 #include "Player.hpp"
-//#include "Game.hpp"
 
 namespace coup{
 class Spy : public Player{

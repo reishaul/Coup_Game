@@ -1,8 +1,8 @@
+//reishaul1@gmail.com
 #ifndef MERCHANT_HPP
 #define MERCHANT_HPP
 
 #include "Player.hpp"
-//#include "Game.hpp"
 
 using std::string;
 

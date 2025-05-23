@@ -1,4 +1,4 @@
-
+//reishaul1@gmail.com
 #ifndef PLAYER_HPP
 #define PLAYER_HPP
 #include "Game.hpp"
@@ -23,7 +23,11 @@ protected:
     bool active;
 
 public:
-    Player(coup::Game& game, const string& name, const string& role);  // 
+    Player(coup::Game& game, const string& name, const string& role);  //
+    
+    Player(const Player&) = delete;//to prevent copying player (Player p1=p2) or(p1=p1)
+    Player& operator=(const Player&) = delete;
+
 
     virtual ~Player()=default;
 
@@ -35,7 +39,6 @@ public:
     string lastAction;
     string status;
     
-
     const string& getName()const{return name;}
     const string& getRole()const{return role;}
     void addCoins(int n){numCoins+=n;}
@@ -62,8 +65,11 @@ public:
     void check_coins();
     void openAccess();
     void isActiveAndTurn();
-    
 
+    bool operator==(const Player& other) const{
+        return this->name==other.name;
+    }
+    
 };
 }
 

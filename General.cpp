@@ -19,6 +19,7 @@ void General::cancelCoup(Player& target){
 
         target.setActive(true);
         decreaseCoins(5);
+        cout<<getName()<<"("<<getRole()<<") cancelled the coup on "<<target.getName()<<"("<<target.getRole()<<")"<<endl;
     }
     else{
         throw runtime_error("cannot cancel coup on active player");

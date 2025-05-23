@@ -1,8 +1,8 @@
+//reishaul1@gmail.com
 #ifndef GOVERNOR_HPP
 #define GOVERNOR_HPP
 
 #include "Player.hpp"
-//#include "Game.hpp"
 
 using std::string;
 namespace coup{

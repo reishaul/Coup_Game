@@ -13,7 +13,7 @@ Player::Player(coup::Game& game,const string& name,const string& role)
 :game(game),name(name),role(role),numCoins(0),active(true){
     for(auto& p:game.getPlayers()){
         if(p->getName()==name){
-            throw runtime_error("the player already exists");
+            throw runtime_error("This name is already taken- please choose another one");
         }
     }
     if(name.empty()){
@@ -37,14 +37,8 @@ void Player::decreaseCoins(int n){
 
     
 void Player::gather(){
-    //isActiveAndTurn();//check if it is the player turn and also if he is active
+    isActiveAndTurn();//check if it is the player turn and also if he is active
     check_coins();
-    
-    if(!(game.turn()==this->name)){
-        std::string role_lower = this->role;
-        std::transform(role_lower.begin(), role_lower.end(), role_lower.begin(), ::tolower);
-        throw std::runtime_error("Not " + role_lower + "'s turn");
-    }
     
     if(gatheraccess){
         merchantBonus();
@@ -60,7 +54,7 @@ void Player::gather(){
 }
 
 void Player::tax(){
-    //isActiveAndTurn();
+    isActiveAndTurn();
     check_coins();
 
     if(taxaccess){
@@ -99,7 +93,7 @@ void Player::bribe(){
 }
 
 void Player::arrest(Player& p){
-    //isActiveAndTurn();
+    isActiveAndTurn();
     check_coins();
 
     if(!arrestAccess){
@@ -109,7 +103,8 @@ void Player::arrest(Player& p){
     else if(game.getLastArrest()!=p.getName()){
         merchantBonus();//if the player is merchant he get one coin
         if(p.getRole()=="Merchant"){p.decreaseCoins(2);}
-        //if it is general he get back his coin
+        
+        //if it is general he get back his coin back
         else if(p.getRole()=="General"){numCoins+=1;}
         else{
             p.decreaseCoins(1);
@@ -125,10 +120,13 @@ void Player::arrest(Player& p){
     else if(!p.isActive()){
         throw runtime_error("the target player is already out of the game");
     }
+    else{
+        throw runtime_error("cannot arrest the same player two times in a row");
+    }
 }
 
 void Player::sanction(Player& p){
-    //isActiveAndTurn();
+    isActiveAndTurn();
     check_coins();
     merchantBonus();
     if(numCoins<3){
@@ -149,7 +147,7 @@ void Player::sanction(Player& p){
 }
 
 void Player::coup(Player& p){
-    //isActiveAndTurn();
+    isActiveAndTurn();
     if(coupAccess){
         // int a = ((game.turn_index)+1)%(game.players_pointers.size());
         // string name=game.players_pointers[a]->getName();
@@ -162,16 +160,17 @@ void Player::coup(Player& p){
             throw runtime_error("the player is already out of the game");
         }
         numCoins=numCoins-7;
-        game.next_turn();
+        p.setActive(false);
         
         lastAction="coup";
         p.status="coup";
         
         
-        p.setActive(false);
+        game.next_turn();
         //game.back_turn();
         cout<< getName() <<"("<<getRole()<<") performed a coup against "<<p.getRole()<<endl;
         openAccess();
+        
     }
     else{
         throw runtime_error("no access for coup operation");
@@ -214,13 +213,11 @@ void Player::isActiveAndTurn(){
     std::transform(role_lower.begin(), role_lower.end(), role_lower.begin(), ::tolower);
     throw std::runtime_error("Not " + role_lower + "'s turn");
     }
+    else if(!isActive()){
+        throw std::runtime_error("Cannot make operation-the player is not active");
+    }
 }
 
-// void Player::checkActive(){
-//     if(!isActive()){
-//         throw std::runtime_error ("cannot make operation when offline");
-//     }
-// }
 }
 
 
