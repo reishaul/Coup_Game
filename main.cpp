@@ -14,9 +14,7 @@
 #include <random>
 //QT_QUICK_BACKEND=software ./coup_game
 
-
 using namespace coup;
-
 
 int main() {
     Game game;
@@ -34,6 +32,10 @@ int main() {
 
     enum State { START_SCREEN, ADD_PLAYERS, GAME_SCREEN };
     State state = START_SCREEN;
+
+    //ערך הכפתורים לצורך מיפוי לפי פעולות
+    std::vector<std::tuple<sf::RectangleShape, size_t, std::string>> actionButtons;
+
 
     // START SCREEN
     sf::Color brown(139, 69, 19);
@@ -113,6 +115,28 @@ int main() {
 
             if (event.type == sf::Event::MouseButtonPressed) {
                 sf::Vector2f mouse(event.mouseButton.x, event.mouseButton.y);
+                    if (event.mouseButton.button == sf::Mouse::Left) {
+                        //sf::Vector2f mousePos(event.mouseButton.x, event.mouseButton.y);
+
+                        // בדיקת לחיצות על כפתורים
+                        if (state == GAME_SCREEN) {
+                            for (const auto& ab : actionButtons) {
+                                if (std::get<0>(ab).getGlobalBounds().contains(mouse)) {
+                                    size_t playerIndex = std::get<1>(ab);
+                                    std::string action = std::get<2>(ab);
+                                    Player* currentPlayer = game.getPlayers()[playerIndex];
+                                    if (action == "gather") {currentPlayer->gather(); }
+                                    else if (action == "tax") { currentPlayer->tax();}
+                                    else if (action == "bribe") {currentPlayer->bribe();}
+                                    // else if (ab.action == "foreign_aid") {
+                                    //     currentPlayer->foreign_aid();
+                                    // }
+                                    // הוסף עוד פעולות אם צריך
+                                }
+
+                            }
+                        }
+                    }
 
                 if (state == START_SCREEN && startButton.getGlobalBounds().contains(mouse)) {
                     state = ADD_PLAYERS;
@@ -172,7 +196,7 @@ int main() {
                         inputText.setString("");
 
                         // יצירת תיבה עם שם ותפקיד
-                        sf::RectangleShape box(sf::Vector2f(500, 40));
+                        sf::RectangleShape box(sf::Vector2f(300, 30));
                         box.setFillColor(sf::Color::White);
                         box.setPosition(50, 50 + playerBoxes.size() * 50);
 
@@ -194,16 +218,9 @@ int main() {
                         // הכל בסדר - מתחילים את המשחק
                         errorMessage = "";
                         errorText.setString("");
-                        
-                        // הוסף את השחקנים למשחק
-                        for (auto& player : players) {
-                            game.add_player(*player);
-                        }
-                        players.clear(); // מנקה את הוקטור המקומי
-                        
-                        // התחל את המשחק
     
                         state = GAME_SCREEN;
+                        std::cout << "Total players in game after adding: " << game.getPlayers().size() << std::endl;
                     }
                 }
             }
@@ -235,17 +252,138 @@ int main() {
             }
         }
         else if (state == GAME_SCREEN) {
+
             window.clear(brown);
             
             // כאן תוסיף את ממשק המשחק
-            sf::Text gameTitle("GAME IN PROGRESS", font, 30);
+            sf::Text gameTitle("GAME IN PROGRESS", font, 20);
             gameTitle.setFillColor(sf::Color::White);
-            gameTitle.setPosition(150, 150);
+            sf::FloatRect textRect = gameTitle.getLocalBounds();
+            gameTitle.setOrigin(textRect.left + textRect.width / 2.0f, textRect.top + textRect.height / 2.0f);
+            gameTitle.setPosition(window.getSize().x / 2.0f, 20);
             window.draw(gameTitle);
-        }
 
-        window.display();
+            const auto& gamePlayers = game.getPlayers();
+            std::vector<std::string> actions = {"gather", "tax", "bribe", "arrest", "sanction", "coup"};
+
+            float startY = 70.f; // מיקום תחילת רשימת השחקנים לאורך ציר y
+            float playerBoxHeight = 25.f;
+            //float playerBoxWidth = 60.f;
+            float actionButtonWidth = 55.f;
+            float actionButtonHeight = 18.f;
+            float spacingY = 45.f;
+            float spacingX = 3.f;
+
+            ///
+            //const auto& gamePlayers = game.getPlayers();
+
+            actionButtons.clear();
+
+            for (size_t i = 0; i < gamePlayers.size(); ++i) {
+                float baseYPos =startY + i* spacingY ;
+                
+                // תיבת שחקן
+                sf::RectangleShape playerBox(sf::Vector2f(90, playerBoxHeight));
+                playerBox.setFillColor(sf::Color::White);
+                playerBox.setPosition(10, baseYPos);
+                
+                // שם השחקן ותפקידו
+                std::string playerName = gamePlayers[i]->getName();
+                std::string role = gamePlayers[i]->getRole();
+                sf::Text playerNameText(playerName + " (" + role + ")", font, 12);
+                playerNameText.setFillColor(sf::Color::Black);
+                playerNameText.setPosition(15, baseYPos + 8);
+
+                window.draw(playerBox);
+                window.draw(playerNameText);
+                
+                // בניית רשימת פעולות לשחקן הנוכחי
+                std::vector<std::string> basicActions = {"gather", "tax", "bribe", "arrest", "sanction", "coup"};
+                std::vector<std::string> specialActions;
+
+                // הוספת פעולות מיוחדות לפי תפקיד
+                if (role == "Governor") {
+                    specialActions.push_back("UNDO");
+                }
+                else if (role == "Spy") {
+                    specialActions.push_back("view coins");
+                    specialActions.push_back("block arrest");
+                }
+                else if (role == "Baron") {
+                    specialActions.push_back("INVEST");
+                }
+                else if (role == "General") {
+                    specialActions.push_back("cancel coup");
+                }
+                else if (role == "Judge") {
+                    specialActions.push_back("UNDO");
+                }
+
+                float actionStartX = 110.f;
+
+                for (size_t j = 0; j < basicActions.size(); ++j) {
+                float x = actionStartX + j * (actionButtonWidth + spacingX);
+
+                sf::RectangleShape button(sf::Vector2f(actionButtonWidth, actionButtonHeight));
+                button.setFillColor(sf::Color::Red);
+                button.setPosition(x, baseYPos + 2.f);
+
+                sf::Text text(basicActions[j], font, 10); // פונט קטן יותר
+                text.setFillColor(sf::Color::Black);
+                text.setPosition(
+                    x + actionButtonWidth / 2 - text.getGlobalBounds().width / 2,
+                    baseYPos + 2.f + actionButtonHeight / 2 - text.getGlobalBounds().height / 2
+                );
+                window.draw(button);
+                window.draw(text);
+                // actionButtons.push_back({button, i, basicActions[j]});
+                }
+
+             // ציור פעולות מיוחדות - שורה שנייה (אם קיימות)
+            if (!specialActions.empty()) {
+                for (size_t j = 0; j < specialActions.size(); ++j) {
+                    float x = actionStartX + (basicActions.size() + j) * (actionButtonWidth + spacingX);
+
+                    // float x = actionStartX + j * (actionButtonWidth + spacingX);
+                    // float specialYPos = baseYPos + actionButtonHeight + 4.f; // שורה למטה
+                    
+                    sf::RectangleShape button(sf::Vector2f(actionButtonWidth, actionButtonHeight));
+                    button.setFillColor(sf::Color::Blue); // צבע שונה לפעולות מיוחדות
+                    button.setPosition(x, baseYPos);//specialYpos
+                    
+                    sf::Text text(specialActions[j], font, 9); // פונט עוד יותר קטן
+                    text.setFillColor(sf::Color::White);
+                    text.setPosition(
+                        x + actionButtonWidth / 2 - text.getGlobalBounds().width / 2,
+                        baseYPos + actionButtonHeight / 2 - text.getGlobalBounds().height / 2
+                    );
+                    
+                    window.draw(button);
+                    window.draw(text);
+                    actionButtons.push_back({button, i, basicActions[j]});
+                }
+            }
+           
+
+
+            if (!gamePlayers.empty()) {
+                std::string currentPlayerName = game.turn();
+                //std::cout << "Name length: " << currentPlayerName.length() << std::endl;//new
+                sf::Text turnText("Turn: " + currentPlayerName, font, 20);
+                turnText.setFillColor(sf::Color::Yellow);
+                
+                sf::FloatRect turnBounds = turnText.getLocalBounds();
+                float xPos = window.getSize().x - turnBounds.width - 10; // 10 פיקסלים מהקצה הימני
+                float yPos = 10; // 10 פיקסלים מהחלק העליון
+                turnText.setPosition(xPos, yPos);
+                //turnText.setPosition(50, 200);
+                window.draw(turnText);
+            }
+        }
     }
 
+    window.display();
+    }
+    
     return 0;
 }

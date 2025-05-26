@@ -313,5 +313,4 @@ int main() {
 
     Baron baron3(game_3, "Ido");
     Baron baron4(game_3, "Meir");
-    //יש לעשות את ההגרלה של התפקיד לשחקן הנכנס למשחק
 }

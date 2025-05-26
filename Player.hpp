@@ -19,12 +19,12 @@ protected:
     coup::Game& game;
     string name;
     string role;
-    int numCoins;
-    bool active;
+    int numCoins=0;
+    bool active=true; //to check if the player is active in the game
 
 public:
-    Player(coup::Game& game, const string& name, const string& role);  //
-    
+    Player(coup::Game& game, const string& name, const string& role);
+
     Player(const Player&) = delete;//to prevent copying player (Player p1=p2) or(p1=p1)
     Player& operator=(const Player&) = delete;
 

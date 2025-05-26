@@ -1,12 +1,21 @@
-#reishaul1@gmail.com
+# reishaul1@gmail.com
 CXX = g++
 CXXFLAGS = -std=c++17 -Wall -g
 LDFLAGS = -lsfml-graphics -lsfml-window -lsfml-system
 
-OBJS = Demo.o Game.o Player.o Governor.o Judge.o Spy.o Baron.o General.o Merchant.o
+COMMON_OBJS = Game.o Player.o Governor.o Judge.o Spy.o Baron.o General.o Merchant.o
 
-coup_game: $(OBJS)
-	$(CXX) -o coup_game $(OBJS) $(LDFLAGS)
+# ברירת מחדל - קומפילציה של main.cpp
+coup_game: main.o $(COMMON_OBJS)
+	$(CXX) -o coup_game main.o $(COMMON_OBJS) $(LDFLAGS)
+
+# אופציה להריץ את Demo.cpp
+demo: Demo.o $(COMMON_OBJS)
+	$(CXX) -o demo Demo.o $(COMMON_OBJS) $(LDFLAGS)
+
+# כללים לקימפול
+main.o: main.cpp
+	$(CXX) $(CXXFLAGS) -c main.cpp -o main.o
 
 Demo.o: Demo.cpp
 	$(CXX) $(CXXFLAGS) -c Demo.cpp -o Demo.o
@@ -35,5 +44,6 @@ General.o: General.cpp General.hpp
 Merchant.o: Merchant.cpp Merchant.hpp
 	$(CXX) $(CXXFLAGS) -c Merchant.cpp -o Merchant.o
 
+# ניקוי קבצים
 clean:
-	rm -f *.o coup_game
+	rm -f *.o coup_game demo

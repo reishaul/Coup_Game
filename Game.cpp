@@ -54,11 +54,11 @@ void Game::add_player(Player& p) {//(const string& name, Player* player)
     if(players_pointers.size()>=MAX_PLAYERS){
         throw std::runtime_error("cannot add more then six players");
     }
+    //std::cout << "Adding player: " << p.getName() << std::endl;
     players_pointers.push_back(&p);
 }
 
 void Game::next_turn(){
-
     size_t num_active_players =players_pointers.size();
     if(num_active_players==0){
         throw std::runtime_error("there is no players left");
