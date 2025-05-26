@@ -16,6 +16,74 @@
 
 using namespace coup;
 
+// הוסף משתנים גלובליים לניהול מצב בחירת יעד
+enum class ActionState {
+    NONE,
+    SELECTING_TARGET_FOR_ARREST,
+    SELECTING_TARGET_FOR_SANCTION,
+    SELECTING_TARGET_FOR_COUP
+};
+ActionState currentActionState = ActionState::NONE;
+Player* actionInitiator = nullptr;
+
+
+
+// פונקציה לטיפול בבחירת יעד - מחוץ ללולאה!
+void handleTargetSelection(sf::Vector2f mousePos, Game& game) {
+    const auto& players = game.getPlayers();
+    
+    // בדוק אם לחצו על אחד השחקנים
+    for (size_t i = 0; i < players.size(); ++i) {
+        // חשב את מיקום תיבת השחקן (בהתאם לקוד התצוגה שלך)
+        float baseYPos = 70.f + i * 45.f;
+        
+        // בדוק אם הלחיצה בתוך תיבת השחקן
+        if (mousePos.x >= 10 && mousePos.x <= 100 && 
+            mousePos.y >= baseYPos && mousePos.y <= baseYPos + 25) {
+            
+            Player* target = players[i];
+            
+            // אסור לבחור את עצמו כיעד (למעט מקרים מסוימים)
+            if (target == actionInitiator) {
+                std::cout << "Cannot target yourself!" << std::endl;
+                return;
+            }
+            
+            // בצע את הפעולה עם היעד הנבחר
+            try {
+                switch (currentActionState) {
+                        
+                    case ActionState::SELECTING_TARGET_FOR_ARREST:
+                        actionInitiator->arrest(*target);
+                        std::cout << actionInitiator->getName() << " arrested " << target->getName() << std::endl;
+                        break;
+                        
+                    case ActionState::SELECTING_TARGET_FOR_SANCTION:
+                        actionInitiator->sanction(*target);
+                        std::cout << actionInitiator->getName() << " sanctioned " << target->getName() << std::endl;
+                        break;
+                        
+                    case ActionState::SELECTING_TARGET_FOR_COUP:
+                        actionInitiator->coup(*target);
+                        std::cout << actionInitiator->getName() << " couped " << target->getName() << std::endl;
+                        break;
+                    default:
+                        std::cout << "No valid action selected." << std::endl;
+                        break;;
+                }
+                
+            } catch (const std::exception& e) {
+                std::cout << "Action failed: " << e.what() << std::endl;
+            }
+            
+            // איפוס מצב הבחירה
+            currentActionState = ActionState::NONE;
+            actionInitiator = nullptr;
+            break;
+        }
+    }
+}
+
 int main() {
     Game game;
     std::vector<std::unique_ptr<Player>> players;
@@ -116,27 +184,69 @@ int main() {
             if (event.type == sf::Event::MouseButtonPressed) {
                 sf::Vector2f mouse(event.mouseButton.x, event.mouseButton.y);
                     if (event.mouseButton.button == sf::Mouse::Left) {
-                        //sf::Vector2f mousePos(event.mouseButton.x, event.mouseButton.y);
 
                         // בדיקת לחיצות על כפתורים
                         if (state == GAME_SCREEN) {
-                            for (const auto& ab : actionButtons) {
-                                if (std::get<0>(ab).getGlobalBounds().contains(mouse)) {
-                                    size_t playerIndex = std::get<1>(ab);
-                                    std::string action = std::get<2>(ab);
-                                    Player* currentPlayer = game.getPlayers()[playerIndex];
-                                    if (action == "gather") {currentPlayer->gather(); }
-                                    else if (action == "tax") { currentPlayer->tax();}
-                                    else if (action == "bribe") {currentPlayer->bribe();}
-                                    // else if (ab.action == "foreign_aid") {
-                                    //     currentPlayer->foreign_aid();
-                                    // }
-                                    // הוסף עוד פעולות אם צריך
-                                }
+                            // אם אנחנו במצב בחירת יעד
+                            if (currentActionState != ActionState::NONE) {
+                                handleTargetSelection(mouse, game);
+                            }
+                            // אחרת, בדיקת לחיצות על כפתורי פעולות
+                            else {
+                                for (const auto& ab : actionButtons) {
+                                    if (std::get<0>(ab).getGlobalBounds().contains(mouse)) {
+                                        size_t playerIndex = std::get<1>(ab);
+                                        std::string action = std::get<2>(ab);
+                                        Player* currentPlayer = game.getPlayers()[playerIndex];
 
+                                        // פעולות שלא דורשות יעד
+                                        if (action == "gather") {
+                                            try {
+                                                currentPlayer->gather();
+                                                std::cout << currentPlayer->getName() << " gathered income" << std::endl;
+                                            } catch (const std::exception& e) {
+                                                std::cout << "Gather failed: " << e.what() << std::endl;
+                                            }
+                                        }
+                                        else if (action == "tax") {
+                                            try {
+                                                currentPlayer->tax();
+                                                std::cout << currentPlayer->getName() << " collected tax" << std::endl;
+                                            } catch (const std::exception& e) {
+                                                std::cout << "Tax failed: " << e.what() << std::endl;
+                                            }
+                                        }
+                                        else if (action == "bribe") {
+                                            try{
+                                                currentPlayer->bribe();
+                                                std::cout << currentPlayer->getName() << " bribed" << std::endl;
+                                            }catch (const std::exception& e) {
+                                                std::cout << "Bribe failed: " << e.what() << std::endl;
+                                            }
+                                        }
+                                        // פעולות שדורשות בחירת יעד
+                                        else if (action == "arrest") {
+                                            currentActionState = ActionState::SELECTING_TARGET_FOR_ARREST;
+                                            actionInitiator = currentPlayer;
+                                            std::cout << "Select target for arrest by " << currentPlayer->getName() << std::endl;
+                                        }
+
+                                        else if (action == "sanction") {
+                                            currentActionState = ActionState::SELECTING_TARGET_FOR_SANCTION;
+                                            actionInitiator = currentPlayer;
+                                            std::cout << "Select target for sanction by " << currentPlayer->getName() << std::endl;
+                                        }
+                                        else if (action == "coup") {
+                                            currentActionState = ActionState::SELECTING_TARGET_FOR_COUP;
+                                            actionInitiator = currentPlayer;
+                                            std::cout << "Select target for coup by " << currentPlayer->getName() << std::endl;
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
+                
 
                 if (state == START_SCREEN && startButton.getGlobalBounds().contains(mouse)) {
                     state = ADD_PLAYERS;
@@ -225,7 +335,6 @@ int main() {
                 }
             }
         }
-        
 
         if (state == START_SCREEN) {
             window.clear(brown);
@@ -268,14 +377,10 @@ int main() {
 
             float startY = 70.f; // מיקום תחילת רשימת השחקנים לאורך ציר y
             float playerBoxHeight = 25.f;
-            //float playerBoxWidth = 60.f;
             float actionButtonWidth = 55.f;
             float actionButtonHeight = 18.f;
             float spacingY = 45.f;
             float spacingX = 3.f;
-
-            ///
-            //const auto& gamePlayers = game.getPlayers();
 
             actionButtons.clear();
 
@@ -336,16 +441,13 @@ int main() {
                 );
                 window.draw(button);
                 window.draw(text);
-                // actionButtons.push_back({button, i, basicActions[j]});
+                actionButtons.push_back({button, i, basicActions[j]});//היה בהטיה
                 }
 
              // ציור פעולות מיוחדות - שורה שנייה (אם קיימות)
             if (!specialActions.empty()) {
                 for (size_t j = 0; j < specialActions.size(); ++j) {
                     float x = actionStartX + (basicActions.size() + j) * (actionButtonWidth + spacingX);
-
-                    // float x = actionStartX + j * (actionButtonWidth + spacingX);
-                    // float specialYPos = baseYPos + actionButtonHeight + 4.f; // שורה למטה
                     
                     sf::RectangleShape button(sf::Vector2f(actionButtonWidth, actionButtonHeight));
                     button.setFillColor(sf::Color::Blue); // צבע שונה לפעולות מיוחדות
@@ -360,15 +462,13 @@ int main() {
                     
                     window.draw(button);
                     window.draw(text);
-                    actionButtons.push_back({button, i, basicActions[j]});
+                    actionButtons.push_back({button, i, specialActions[j]});//new
                 }
             }
-           
-
 
             if (!gamePlayers.empty()) {
                 std::string currentPlayerName = game.turn();
-                //std::cout << "Name length: " << currentPlayerName.length() << std::endl;//new
+             
                 sf::Text turnText("Turn: " + currentPlayerName, font, 20);
                 turnText.setFillColor(sf::Color::Yellow);
                 
@@ -376,8 +476,25 @@ int main() {
                 float xPos = window.getSize().x - turnBounds.width - 10; // 10 פיקסלים מהקצה הימני
                 float yPos = 10; // 10 פיקסלים מהחלק העליון
                 turnText.setPosition(xPos, yPos);
-                //turnText.setPosition(50, 200);
                 window.draw(turnText);
+
+                //
+                int coins = 0;
+                for (const auto& player : gamePlayers) {
+                    if (player->getName() == currentPlayerName) {
+                        coins = player->coins();
+                        break;
+                    }
+                }
+
+                sf::Text coinsText("Coins: " + std::to_string(coins), font, 20);
+                coinsText.setFillColor(sf::Color::Yellow);
+
+                sf::FloatRect coinsBounds = coinsText.getLocalBounds();
+                float xXPos = window.getSize().x - coinsBounds.width - 10; // 10 פיקסלים מהקצה הימני
+                float yYPos = 30; // 30 פיקסלים מהחלק העליון
+                coinsText.setPosition(xXPos, yYPos);
+                window.draw(coinsText);
             }
         }
     }
