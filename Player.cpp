@@ -99,7 +99,9 @@ void Player::arrest(Player& p){
     if(!arrestAccess){
         throw runtime_error("no access for arrest operation");
     }
-        
+    else if(!p.isActive()){
+        throw runtime_error("the target player is already out of the game");
+    }
     else if(game.getLastArrest()!=p.getName()){
         merchantBonus();//if the player is merchant he get one coin
         if(p.getRole()=="Merchant"){p.decreaseCoins(2);}
@@ -113,12 +115,9 @@ void Player::arrest(Player& p){
         lastAction="arrest";
         p.status="arrest";
         game.setLastArrest(p.getName());
-        cout<< getName() <<"("<<getRole()<<") performed an arrest operation against "<<p.getRole()<<endl;
+        cout<< getName() <<"("<<getRole()<<") performed an arrest operation against "<<p.getName()<<"("<<p.getRole()<<")"<<endl;
         game.next_turn();
         openAccess();
-    }
-    else if(!p.isActive()){
-        throw runtime_error("the target player is already out of the game");
     }
     else{
         throw runtime_error("cannot arrest the same player two times in a row");
@@ -130,7 +129,7 @@ void Player::sanction(Player& p){
     check_coins();
     merchantBonus();
     if(numCoins<3){
-        throw runtime_error("the player dosen't have enough coins for bribe operation");
+        throw runtime_error("the player dosen't have enough coins to perform sanction operation");
     }
 
     p.gatheraccess=false;
@@ -142,7 +141,7 @@ void Player::sanction(Player& p){
     lastAction="sanction";
     p.status="sanction";
     game.next_turn();
-    cout<< getName() <<"("<<getRole()<<") performed a sanction operation against "<<p.getRole()<<endl;
+    cout<< getName() <<"("<<getRole()<<") performed a sanction operation against "<<p.getName()<<"("<<p.getRole()<<")"<<endl;
     openAccess();
 }
 
@@ -168,7 +167,7 @@ void Player::coup(Player& p){
         
         game.next_turn();
         //game.back_turn();
-        cout<< getName() <<"("<<getRole()<<") performed a coup against "<<p.getRole()<<endl;
+        cout<< getName() <<"("<<getRole()<<") performed a coup against "<<p.getName()<<"("<<p.getRole()<<")"<<endl;
         openAccess();
         
     }
