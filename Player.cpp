@@ -151,13 +151,15 @@ void Player::coup(Player& p){
         // int a = ((game.turn_index)+1)%(game.players_pointers.size());
         // string name=game.players_pointers[a]->getName();
 
+        if (!p.active) {
+            throw runtime_error("the player is already out of the game");
+        }
+
         merchantBonus();
         if(numCoins<7){
             throw runtime_error("the player doesn't have enough coins for a coup operation");
         }
-        if (!p.active) {
-            throw runtime_error("the player is already out of the game");
-        }
+
         numCoins=numCoins-7;
         p.setActive(false);
         

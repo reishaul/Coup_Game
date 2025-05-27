@@ -11,7 +11,10 @@ namespace coup{
 Spy::Spy(coup::Game& game,const string& name):Player(game,name,"Spy"){};
 
 void Spy::blockArrest(Player& p){
-    if(!p.isActive()){
+    if(!this->active){
+        throw runtime_error("cannot block arrest with no active player");
+    }
+    else if(!p.isActive()){
         throw runtime_error("the player is not active");
     }
     cout<<getName() << "(spy) has blocked " << p.getName() << "'s arrest" << endl;
@@ -20,7 +23,7 @@ void Spy::blockArrest(Player& p){
  
 void Spy::viewCoins(Player& p){
     if(!this->active){
-        throw runtime_error("cannot view coins- this player is not active so far");
+        throw runtime_error("cannot view coins with no active player");
     }
     else if(!p.isActive()){
         throw runtime_error("this player is not active so far");

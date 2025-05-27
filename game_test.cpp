@@ -102,6 +102,117 @@ TEST_CASE("Game Initialization and unregular operations") {
     CHECK_THROWS_WITH(merchant1.gather(), "Not merchant's turn");
 
     //
+    governor1.tax();//gov=4
+    spy1.tax();//spy=9
+    baron1.invest();//baron=6
 
+    //try to cancel coup on player who is already active
+    CHECK_THROWS_AS(general1.cancelCoup(spy1), std::runtime_error);
+    CHECK_THROWS_WITH(general1.cancelCoup(spy1), "cannot cancel coup on active player");
+
+
+    general1.cancelCoup(merchant1);//general=1
+    CHECK(merchant1.isActive() == true);//check that the merchant is active after canceling the coup
+    CHECK(merchant1.coins() == 6);//check that the merchant has still 6 coins after canceling the coup
+
+    general1.gather();//general=2
+    judge1.tax();//judge=8
+    merchant1.gather();//Merchant=8
+
+    governor1.arrest(general1);//gov=5 general=2
+    spy1.tax();//spy=11
+    baron1.gather();//baron=7
+    general1.tax();//general=4
+    judge1.tax();//judge=10
+    merchant1.gather();//Merchant=10
+
+    CHECK(governor1.coins() == 5);
+    CHECK(spy1.coins() == 11);
+    CHECK(baron1.coins() == 7);
+    CHECK(general1.coins() == 4);
+    CHECK(judge1.coins() == 10);
+    CHECK(merchant1.coins() == 10);
+
+    governor1.gather();//gov=6
+
+    //try to make operation with player that have 10 or more coins
+    CHECK_THROWS_AS(spy1.gather(), std::runtime_error);
+    CHECK_THROWS_WITH(spy1.gather(), "You are must make a coup operation");
+
+    //try to make operation with player that have 10 or more coins
+    CHECK_THROWS_AS(spy1.arrest(baron1), std::runtime_error);
+    CHECK_THROWS_WITH(spy1.arrest(baron1), "You are must make a coup operation");
+
+    spy1.coup(baron1);//spy=4
+    CHECK(game.turn() == "Dagan");//check that the turn is continue well (jump baron)
+
+    CHECK(baron1.isActive() == false);//check that the baron is offline after coup
+    general1.tax();//general=6
+    judge1.coup(spy1);//judge=3
+    CHECK(spy1.isActive() == false);//check that the spy is offline after coup
+
+    //try to make coup on offline player
+    CHECK_THROWS_AS(merchant1.coup(spy1), std::runtime_error);
+    CHECK_THROWS_WITH(merchant1.coup(spy1), "the player is already out of the game");
+
+    merchant1.coup(governor1);//merchant=4
+    CHECK(merchant1.coins() == 4);//check that he get one coin for free
+
+    CHECK(governor1.isActive() == false);//check that the governor is offline after coup
+
+    CHECK(game.turn() == "Dagan");//check that the turn is continue well (jump over gover, spy and baron that is offline)
+
+    general1.cancelCoup(baron1);//general=1
+    CHECK(baron1.isActive() == true);//check that the baron is active after canceling the coup
+    CHECK(baron1.coins() == 7);//check that the baron has still 6 coins after canceling the coup
+
+    //try to view coins with offline player
+    CHECK_THROWS_AS(spy1.viewCoins(baron1), std::runtime_error);
+    CHECK_THROWS_WITH(spy1.viewCoins(baron1), "cannot view coins with no active player");
+
+    //try to block arrest with offline player
+    CHECK_THROWS_AS(spy1.blockArrest(baron1), std::runtime_error);
+    CHECK_THROWS_WITH(spy1.blockArrest(baron1), "cannot block arrest with no active player");
+
+    CHECK(game.turn() == "Dagan");//cancel coup is not considered as turn
+
+    general1.tax();//gen=3
+    judge1.tax();//judge=5
+    merchant1.tax();//Merchant=7
+
+    baron1.tax();//baron=9
+    general1.tax();//general=5
+    judge1.tax();//judge=7
+    merchant1.tax();//Merchant=10
+
+    //check the coins of each player
+    CHECK(baron1.coins() == 9);
+    CHECK(general1.coins() == 5);
+    CHECK(judge1.coins() == 7);
+    //NOTE that the merchant get one more coin if he had 3 or more coins in the beginning of his turn
+    CHECK(merchant1.coins() == 10);
+
+    CHECK(governor1.isActive() == false);
+    CHECK(spy1.isActive() == false);
+
+    baron1.coup(general1);//baron=2
+    judge1.coup(baron1);//judge=0
+
+    //before the last coup- let check if there is a winner
+    CHECK_THROWS_AS(game.winner(), std::runtime_error);
+    CHECK_THROWS_WITH(game.winner(), "there is no winner yet");
+
+    //let the merchant coup the judge(the last player who is active)
+    merchant1.coup(judge1);//Merchant=4
+
+    //check that the game is over and there is a winner
+    CHECK(governor1.isActive() == false);
+    CHECK(spy1.isActive() == false);
+    CHECK(baron1.isActive() == false);
+    CHECK(general1.isActive() == false);
+    CHECK(judge1.isActive() == false);
+    CHECK(merchant1.isActive() == true);
+
+    CHECK(game.winner() == "Ron");//check that the winner is the merchant
 
 }
