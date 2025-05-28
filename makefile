@@ -17,6 +17,7 @@ demo: Demo.o $(COMMON_OBJS)
 main.o: main.cpp
 	$(CXX) $(CXXFLAGS) -c main.cpp -o main.o
 
+
 Demo.o: Demo.cpp
 	$(CXX) $(CXXFLAGS) -c Demo.cpp -o Demo.o
 
@@ -44,6 +45,11 @@ General.o: General.cpp General.hpp
 Merchant.o: Merchant.cpp Merchant.hpp
 	$(CXX) $(CXXFLAGS) -c Merchant.cpp -o Merchant.o
 
+# קומפילציה והרצת GUI מתוך main.cpp
+Main: main.cpp $(COMMON_OBJS)
+	$(CXX) $(CXXFLAGS) -o coup_game main.cpp $(COMMON_OBJS) $(LDFLAGS)
+	./coup_game
+
 # טסטים
 test: test_runner
 	./test_runner
@@ -54,7 +60,8 @@ test_runner: game_test.o $(COMMON_OBJS)
 game_test.o: game_test.cpp
 	$(CXX) $(CXXFLAGS) -c game_test.cpp -o game_test.o
 
-
+valgrind: test_runner 
+	valgrind --leak-check=full --track-origins=yes ./test_runner
 # ניקוי קבצים
 clean:
 	rm -f *.o coup_game demo test_runner game_test.o

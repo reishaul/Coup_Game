@@ -29,13 +29,20 @@ void Governor::undo(Player& p){
     if(!p.isActive()){
         throw runtime_error("the player is not active anymore");
     }
-    if(!(p.lastAction=="tax")){
+    else if(!(p.lastAction=="tax")){
         throw runtime_error("the last action of  this player is not tax");
 
+    }
+    else if(p.coins()<2){
+        throw runtime_error("cannot undo tax on a player with less than 2 coins");
+    }
+    else if(p.status=="undo"){
+        throw runtime_error("cannot undo tax on a player who already has undo status");
     }
     else{
         p.decreaseCoins(2);//return the coins that the player get
         cout<< getName() <<"(Governor) undo tax on "<<p.getName()<<endl;
+        p.status="undo";
     }
 
 }

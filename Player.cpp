@@ -102,6 +102,9 @@ void Player::arrest(Player& p){
     else if(!p.isActive()){
         throw runtime_error("the target player is already out of the game");
     }
+    else if(p.coins()<1){
+        throw runtime_error("the target player dosen't have enough coins, please choose another player");
+    }
     else if(game.getLastArrest()!=p.getName()){
         merchantBonus();//if the player is merchant he get one coin
         if(p.getRole()=="Merchant"){p.decreaseCoins(2);}
@@ -130,6 +133,9 @@ void Player::sanction(Player& p){
     merchantBonus();
     if(numCoins<3){
         throw runtime_error("the player dosen't have enough coins to perform sanction operation");
+    }
+    else if(!p.isActive()){
+        throw runtime_error("the target player is already out of the game");
     }
 
     p.gatheraccess=false;

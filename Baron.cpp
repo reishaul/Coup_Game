@@ -11,6 +11,9 @@ void Baron::invest(){
     if(coins()<3){
         throw runtime_error("cannot invest with less then 3 coins");
     }
+    else if(game.turn() != getName()){
+        throw runtime_error("Not baron's turn");
+    }
     addCoins(3);
     game.next_turn();
     lastAction="invest";

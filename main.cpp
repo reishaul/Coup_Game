@@ -651,6 +651,7 @@ int main() {
                 float lastArrestYPos = 50; // 50 pixels from the top
                 lastArrestText.setPosition(lastArrestXPos, lastArrestYPos);
                 window.draw(lastArrestText);
+
             }
 
             // Draw information about the game - turn, coins, last arrest and winner
