@@ -12,10 +12,9 @@
 #include <iostream>
 #include <stdexcept>
 #include <vector>
-using namespace std;//לעשות יוזינג סטידי וקואופ גם בגוי
+using namespace std;
 using namespace coup;
 
-//לא לשכוח לעשות copy constructor ואופרטור השמה
 int main() {
     Game game_1{};
 
@@ -109,7 +108,7 @@ int main() {
         cout << name << endl;
     }
 
-    // ADDITIONS- Game 2
+    // ADDITIONS- Game 2 -for building the logic of the game
     cout<<"starting the second game\n"<<endl;
     Game game_2{};
 

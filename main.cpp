@@ -78,7 +78,7 @@ void handleTargetSelection(sf::Vector2f mousePos, Game& game) {
                     }
                     //undo is performed by Governor or Judge only
                     case ActionState::SELECTING_TARGET_FOR_UNDO:{
-                        Governor* governor = dynamic_cast<Governor*>(actionInitiator);
+                        Governor* governor = dynamic_cast<Governor*>(actionInitiator);//using dynamic cast to fixing the object type
                         Judge* judge = dynamic_cast<Judge*>(actionInitiator);
 
                         if (governor) {
@@ -291,14 +291,14 @@ int main() {
                                             std::cout << "Select target for arrest by " << currentPlayer->getName() << std::endl;// print the message to the console
                                         }
 
-                                        else if (action == "sanction") {
+                                        else if (action == "sanction") {// check if the action on the button is sanction
                                             currentActionState = ActionState::SELECTING_TARGET_FOR_SANCTION;
                                             actionInitiator = currentPlayer;
                                             std::cout << "Select target for sanction by " << currentPlayer->getName() << std::endl;
                                         }
-                                        else if (action == "coup") {
+                                        else if (action == "coup") {// check if the action on the button is coup
                                             currentActionState = ActionState::SELECTING_TARGET_FOR_COUP;
-                                            actionInitiator = currentPlayer;
+                                            actionInitiator = currentPlayer;//
                                             std::cout << "Select target for coup by " << currentPlayer->getName() << std::endl;
                                         }
 
@@ -319,22 +319,22 @@ int main() {
                                                 std::cout << "Only Baron can perform invest action!" << std::endl;
                                             }
                                         }
-                                        else if (action == "cancel coup") {
+                                        else if (action == "cancel coup") {// check if the action on the button is cancel coup
                                             currentActionState = ActionState::SELECTING_TARGET_FOR_CANCEL_COUP;// set the current action state to selecting target for cancel coup
                                             actionInitiator = currentPlayer;
                                             std::cout << "Select target for cancel coup by " << currentPlayer->getName() << std::endl;
                                         }
-                                        else if (action == "UNDO") {
+                                        else if (action == "UNDO") {// check if the action on the button is undo
                                             currentActionState = ActionState::SELECTING_TARGET_FOR_UNDO;// set the current action state to selecting target for undo
                                             actionInitiator = currentPlayer;
                                             std::cout << "Select target for undo by " << currentPlayer->getName() << std::endl;
                                         }
-                                        else if (action == "block arrest") {
+                                        else if (action == "block arrest") {// check if the action on the button is block arrest
                                             currentActionState = ActionState::SELECTING_TARGET_FOR_BLOCK_ARREST;// set the current action state to selecting target for block arrest
                                             actionInitiator = currentPlayer;
                                             std::cout << "Select target for block arrest by " << currentPlayer->getName() << std::endl;
                                         }
-                                        else if (action == "view coins") {
+                                        else if (action == "view coins") {// check if the action on the button is view coins
                                             currentActionState = ActionState::SELECTING_TARGET_FOR_VIEW_COINS;// set the current action state to selecting target for view coins
                                             actionInitiator = currentPlayer;
                                             std::cout << "Select target for view coins by " << currentPlayer->getName() << std::endl;
@@ -362,7 +362,7 @@ int main() {
                                 break;
                             }
                         }
-                        if (exists) {
+                        if (exists) {// if the name already exists, set the error message
                             errorMessage = "Name already exists!";
                             errorText.setString(errorMessage);
                             continue;
@@ -381,11 +381,13 @@ int main() {
 
                         // Create a new player with a random role
                         std::vector<std::string> roles = {"Governor", "Spy", "Baron", "General", "Judge", "Merchant"};
+
                         //random and possibility things
                         static std::random_device rd;
                         static std::mt19937 gen(rd());
                         std::uniform_int_distribution<> dis(0, roles.size() - 1);
                         std::string role = roles[dis(gen)];
+
                         // Create the player based on the role
                         if (role == "Baron") {
                             players.push_back(std::make_unique<Baron>(game, name));
@@ -413,7 +415,7 @@ int main() {
                         playerInfo.setFillColor(sf::Color::Black);
                         playerInfo.setPosition(box.getPosition().x + 10, box.getPosition().y + 8);
 
-                        playerBoxes.push_back({box, playerInfo});
+                        playerBoxes.push_back({box, playerInfo});// add the box and text to the player boxes vector
                     }
                 }
                 // Check if the mouse is on the play button
@@ -450,12 +452,12 @@ int main() {
             sf::Text promptText("Enter name of player to add...", font, 20);
             promptText.setFillColor(sf::Color::Yellow);
 
-            sf::FloatRect textBounds = promptText.getLocalBounds();
-            promptText.setOrigin(textBounds.width / 2, textBounds.height / 2);
-            promptText.setPosition(window.getSize().x / 2, 30); 
+            sf::FloatRect textBounds = promptText.getLocalBounds();// Get the bounds of the text
+            promptText.setOrigin(textBounds.width / 2, textBounds.height / 2);// Set the origin to the center of the text
+            promptText.setPosition(window.getSize().x / 2, 30); // Center the text horizontally
 
-            window.draw(promptText);
-            //
+            window.draw(promptText);// Draw the prompt text
+        
             // Display the input text
             for (const auto& box : playerBoxes) {
                 window.draw(box.first);
@@ -486,6 +488,7 @@ int main() {
 
             const auto& gamePlayers = game.getPlayers();
             std::vector<std::string> actions = {"gather", "tax", "bribe", "arrest", "sanction", "coup"};
+
             // Define positions and sizes for player boxes and action buttons
             float startY = 70.f; // Starting position of the player list along the y-axis
             float playerBoxHeight = 25.f;
@@ -519,20 +522,20 @@ int main() {
                 std::vector<std::string> specialActions;
 
                 // Add special actions based on role
-                if (role == "Governor") {
+                if (role == "Governor") {// check if the role is Governor
                     specialActions.push_back("UNDO");
                 }
                 else if (role == "Spy") {
                     specialActions.push_back("view coins");
                     specialActions.push_back("block arrest");
                 }
-                else if (role == "Baron") {
+                else if (role == "Baron") {// check if the role is Baron
                     specialActions.push_back("INVEST");
                 }
                 else if (role == "General") {
                     specialActions.push_back("cancel coup");
                 }
-                else if (role == "Judge") {
+                else if (role == "Judge") {// check if the role is Judge
                     specialActions.push_back("UNDO");
                 }
 
@@ -541,9 +544,9 @@ int main() {
                 for (size_t j = 0; j < basicActions.size(); ++j) {
                 float x = actionStartX + j * (actionButtonWidth + spacingX);
 
-                sf::RectangleShape button(sf::Vector2f(actionButtonWidth, actionButtonHeight));
-                button.setFillColor(sf::Color::Red);
-                button.setPosition(x, baseYPos + 2.f);
+                sf::RectangleShape button(sf::Vector2f(actionButtonWidth, actionButtonHeight));// create a rectangle shape for the button
+                button.setFillColor(sf::Color::Red);// set the color of the button to red
+                button.setPosition(x, baseYPos + 2.f);// set the position of the button
 
                 sf::Text text(basicActions[j], font, 10); // smaller font size for basic actions
                 text.setFillColor(sf::Color::Black);
@@ -585,9 +588,9 @@ int main() {
             int activePlayersCount = 0;
             Player* lastActivePlayer = nullptr;
             for (const auto& player : gamePlayers) {
-                if (player->isActive()) {  // או איך שקוראים לפונקציה שבודקת אם השחקן פעיל
+                if (player->isActive()) {  // check if the player is active
                     activePlayersCount++;
-                    lastActivePlayer = player;
+                    lastActivePlayer = player;//save the last active player
                 }
             }
             if (activePlayersCount == 1 && lastActivePlayer != nullptr) {//print the winner name and congratulations message with some design elements
@@ -596,15 +599,16 @@ int main() {
                 sf::Text winnerText("Winner: " + winner, font, 20);
                 winnerText.setFillColor(sf::Color::Yellow);
 
-                sf::FloatRect winnerBounds = winnerText.getLocalBounds();
-                float winnerXPos = window.getSize().x - winnerBounds.width - 250; // 250 פיקסלים מהקצה הימני
-                float winnerYPos = 50; // 50 פיקסלים מהחלק העליון
+                sf::FloatRect winnerBounds = winnerText.getLocalBounds();// Get the bounds of the winner text
+                float winnerXPos = window.getSize().x - winnerBounds.width - 250; 
+                float winnerYPos = 50; // 50 pixels from the top
                 winnerText.setPosition(winnerXPos, winnerYPos);
                 window.draw(winnerText);
 
-                sf::Text congratsText("Congratulations!", font, 16);
+                sf::Text congratsText("Congratulations!", font, 16);// create a text object for the congratulations message
                 congratsText.setFillColor(sf::Color::White);
                 sf::FloatRect congratsBounds = congratsText.getLocalBounds();
+                // Center the congratulations text below the winner text
                 congratsText.setPosition(
                     (window.getSize().x - congratsBounds.width) / 2,
                     winnerYPos + 47
@@ -614,6 +618,7 @@ int main() {
             else if(activePlayersCount>1){//if so- the game continues and we display the current turn, coins and last arrest with some design elements
                 std::string currentPlayerName = game.turn();
              
+                // Display the current player's turn
                 sf::Text turnText("Turn: " + currentPlayerName, font, 20);
                 turnText.setFillColor(sf::Color::Yellow);
                 
@@ -643,61 +648,18 @@ int main() {
                 // Display last arrest information
                 std::string lastArrest = game.getLastArrest();
 
+                // Display the last arrest information
                 sf::Text lastArrestText("Last Arrest: " + lastArrest, font, 20);
-                lastArrestText.setFillColor(sf::Color::Yellow);
+                lastArrestText.setFillColor(sf::Color::Yellow);// set the color of the text to yellow
 
                 sf::FloatRect lastArrestBounds = lastArrestText.getLocalBounds();
                 float lastArrestXPos = window.getSize().x - lastArrestBounds.width - 10; // 10 pixels from the right edge
                 float lastArrestYPos = 50; // 50 pixels from the top
-                lastArrestText.setPosition(lastArrestXPos, lastArrestYPos);
+                lastArrestText.setPosition(lastArrestXPos, lastArrestYPos);// set the position of the last arrest text
                 window.draw(lastArrestText);
 
             }
-
-            // Draw information about the game - turn, coins, last arrest and winner
-            // if (!gamePlayers.empty()) {
-            //     std::string currentPlayerName = game.turn();
-             
-            //     sf::Text turnText("Turn: " + currentPlayerName, font, 20);
-            //     turnText.setFillColor(sf::Color::Yellow);
                 
-            //     sf::FloatRect turnBounds = turnText.getLocalBounds();
-            //     float xPos = window.getSize().x - turnBounds.width - 10; // 10 פיקסלים מהקצה הימני
-            //     float yPos = 10; // 10 פיקסלים מהחלק העליון
-            //     turnText.setPosition(xPos, yPos);
-            //     window.draw(turnText);
-
-            //     //
-            //     int coins = 0;
-            //     for (const auto& player : gamePlayers) {
-            //         if (player->getName() == currentPlayerName) {
-            //             coins = player->coins();
-            //             break;
-            //         }
-            //     }
-
-            //     sf::Text coinsText("Coins: " + std::to_string(coins), font, 20);
-            //     coinsText.setFillColor(sf::Color::Yellow);
-
-            //     sf::FloatRect coinsBounds = coinsText.getLocalBounds();
-            //     float xXPos = window.getSize().x - coinsBounds.width - 10; // 10 פיקסלים מהקצה הימני
-            //     float yYPos = 30; // 30 פיקסלים מהחלק העליון
-            //     coinsText.setPosition(xXPos, yYPos);
-            //     window.draw(coinsText);
-            //     //
-            //     std::string lastArrest = game.getLastArrest();
-
-            //     sf::Text lastArrestText("Last Arrest: " + lastArrest, font, 20);
-            //     lastArrestText.setFillColor(sf::Color::Yellow);
-
-            //     sf::FloatRect lastArrestBounds = lastArrestText.getLocalBounds();
-            //     float lastArrestXPos = window.getSize().x - lastArrestBounds.width - 10; // 10 פיקסלים מהקצה הימני
-            //     float lastArrestYPos = 50; // 50 פיקסלים מהחלק העליון
-            //     lastArrestText.setPosition(lastArrestXPos, lastArrestYPos);
-            //     window.draw(lastArrestText);
-            //     //
-                
-            // }
         }
     }
 

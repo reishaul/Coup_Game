@@ -1,3 +1,4 @@
+//reishaul1@gmail.com
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #include "doctest.h"
 #include <vector>
@@ -33,12 +34,10 @@ TEST_CASE("Game Initialization and unregular operations") {
     CHECK_THROWS_AS(spy1.tax(), std::runtime_error);
     CHECK_THROWS_WITH(spy1.tax(), "Not spy's turn");
 
-    // הפעולה החוקית היחידה כרגע היא של השחקן הראשון
+    //the only player that can perform tax operation is the governor
     CHECK_NOTHROW(governor1.tax());
 
-    //CHECK(game.players().empty());
     CHECK(game.turn() == "Mom");
-    //vector<string> players2 = game_1.players();
 
     spy1.gather();//spy=1
     baron1.gather();//baron=1
@@ -72,7 +71,6 @@ TEST_CASE("Game Initialization and unregular operations") {
     CHECK_THROWS_WITH(spy1.arrest(merchant1), "the target player is already out of the game");
 
     spy1.blockArrest(baron1);
-    //לנסות לראות מטבעות עם שחקן מת
     spy1.tax();//spy=7
     //try to make arrest during block
     CHECK_THROWS_AS(baron1.arrest(merchant1), std::runtime_error);
@@ -101,7 +99,6 @@ TEST_CASE("Game Initialization and unregular operations") {
     CHECK_THROWS_AS(merchant1.gather(), std::runtime_error);
     CHECK_THROWS_WITH(merchant1.gather(), "Not merchant's turn");
 
-    //
     governor1.tax();//gov=4
     spy1.tax();//spy=9
     baron1.invest();//baron=6
@@ -126,6 +123,7 @@ TEST_CASE("Game Initialization and unregular operations") {
     judge1.tax();//judge=10
     merchant1.gather();//Merchant=10
 
+    //check that every player has the correct number of coins as expected
     CHECK(governor1.coins() == 5);
     CHECK(spy1.coins() == 11);
     CHECK(baron1.coins() == 7);
@@ -139,7 +137,7 @@ TEST_CASE("Game Initialization and unregular operations") {
     CHECK_THROWS_AS(spy1.gather(), std::runtime_error);
     CHECK_THROWS_WITH(spy1.gather(), "You are must make a coup operation");
 
-    //try to make operation with player that have 10 or more coins
+    //try to make no coup operation with player that have 10 or more coins
     CHECK_THROWS_AS(spy1.arrest(baron1), std::runtime_error);
     CHECK_THROWS_WITH(spy1.arrest(baron1), "You are must make a coup operation");
 
@@ -391,14 +389,17 @@ TEST_CASE("test general operations") {
     //try to cancel coup with less than 5 coins
     CHECK_THROWS_AS(general.cancelCoup(spy), std::runtime_error);
     CHECK_THROWS_WITH(general.cancelCoup(spy), "cannot cancel coup there is not enough coins");
+
     general.tax();//general=6
     judge.arrest(general);//judge=7, general=6
 
     //check that the general got his coin back after arrest
     CHECK(general.coins() == 6);
+
     merchant.tax();//mer=10
     governor.tax();//gov=5
     baron.gather();//baron=8
+
     //check that the general cannot cancel coup on active player
     CHECK_THROWS_AS(general.cancelCoup(baron), std::runtime_error);
     CHECK_THROWS_WITH(general.cancelCoup(baron), "cannot cancel coup on active player");
@@ -587,30 +588,31 @@ TEST_CASE("special cases") {
 
     //try to make operation on offline player
     CHECK_THROWS_AS(spy.arrest(baron), std::runtime_error);
-    CHECK_THROWS_WITH(spy.arrest(baron), "the target player is already out of the game");
+    CHECK_THROWS_WITH(spy.arrest(baron), "the target player is already out of the game");//arrest on offline player
 
     CHECK_THROWS_AS(spy.sanction(baron), std::runtime_error);
-    CHECK_THROWS_WITH(spy.sanction(baron), "the target player is already out of the game");
+    CHECK_THROWS_WITH(spy.sanction(baron), "the target player is already out of the game");//sanction on offline player
 
     CHECK_THROWS_AS(spy.coup(baron), std::runtime_error);
-    CHECK_THROWS_WITH(spy.coup(baron), "the player is already out of the game");
+    CHECK_THROWS_WITH(spy.coup(baron), "the player is already out of the game");//coup on offline player
 
     CHECK_THROWS_AS(spy.blockArrest(baron), std::runtime_error);
-    CHECK_THROWS_WITH(spy.blockArrest(baron), "the player is not active");
+    CHECK_THROWS_WITH(spy.blockArrest(baron), "the player is not active");//block arrest on offline player
 
     CHECK_THROWS_AS(spy.viewCoins(baron), std::runtime_error);
-    CHECK_THROWS_WITH(spy.viewCoins(baron), "this player is not active so far");
+    CHECK_THROWS_WITH(spy.viewCoins(baron), "this player is not active so far");//view coins on offline player
 
     spy.gather();//spy=7
     general.gather();//general=7
 
-
+    //undo(judge) on a player that is not active anymore
     CHECK_THROWS_AS(judge.undo(baron), std::runtime_error);
     CHECK_THROWS_WITH(judge.undo(baron), "the player is out of the game");
 
     judge.gather();//judge=7
     merchant.gather();//Merchant=8
 
+    //try to undo(governor) on a player that is not active anymore
     CHECK_THROWS_AS(governor.undo(baron), std::runtime_error);
     CHECK_THROWS_WITH(governor.undo(baron), "the player is not active anymore");
 }
@@ -628,20 +630,20 @@ TEST_CASE("operations with no coins") {
 
     // Try to perform operations with no coins
     CHECK_THROWS_AS(governor.bribe(), std::runtime_error);
-    CHECK_THROWS_WITH(governor.bribe(), "the player dosen't have enough coins for bribe operation");
+    CHECK_THROWS_WITH(governor.bribe(), "the player dosen't have enough coins for bribe operation");//bribe with no coins
 
     CHECK_THROWS_AS(governor.sanction(spy), std::runtime_error);
-    CHECK_THROWS_WITH(governor.sanction(spy), "the player dosen't have enough coins to perform sanction operation");
+    CHECK_THROWS_WITH(governor.sanction(spy), "the player dosen't have enough coins to perform sanction operation");//sanction with no coins
 
     CHECK_THROWS_AS(governor.coup(spy), std::runtime_error);
-    CHECK_THROWS_WITH(governor.coup(spy), "the player doesn't have enough coins for a coup operation");
+    CHECK_THROWS_WITH(governor.coup(spy), "the player doesn't have enough coins for a coup operation");//coup with no coins
 
     governor.gather();//gov=1
     spy.gather();//spy=1
     baron.gather();//baron=1
 
     CHECK_THROWS_AS(general.cancelCoup(spy), std::runtime_error);
-    CHECK_THROWS_WITH(general.cancelCoup(spy), "cannot cancel coup there is not enough coins");
+    CHECK_THROWS_WITH(general.cancelCoup(spy), "cannot cancel coup there is not enough coins");//cancel coup with no coins
 }
 
 TEST_CASE("operations with no turn& other cases") {
@@ -656,13 +658,13 @@ TEST_CASE("operations with no turn& other cases") {
     Merchant merchant(game, "Ron");
 
     CHECK_THROWS_AS(spy.gather(), std::runtime_error);
-    CHECK_THROWS_WITH(spy.gather(), "Not spy's turn");
+    CHECK_THROWS_WITH(spy.gather(), "Not spy's turn");//gather with no turn
 
     CHECK_THROWS_AS(spy.tax(), std::runtime_error);
-    CHECK_THROWS_WITH(spy.tax(), "Not spy's turn");
+    CHECK_THROWS_WITH(spy.tax(), "Not spy's turn");// tax with no turn
 
     CHECK_THROWS_AS(spy.arrest(baron), std::runtime_error);
-    CHECK_THROWS_WITH(spy.arrest(baron), "Not spy's turn");
+    CHECK_THROWS_WITH(spy.arrest(baron), "Not spy's turn");// arrest with no turn
 
     governor.tax();//gov=3
     spy.tax();//spy=2
@@ -688,15 +690,15 @@ TEST_CASE("operations with no turn& other cases") {
     //TURN=GOVERNOR
 
     CHECK_THROWS_AS(baron.sanction(general), std::runtime_error);
-    CHECK_THROWS_WITH(baron.sanction(general), "Not baron's turn");
+    CHECK_THROWS_WITH(baron.sanction(general), "Not baron's turn");// sanction with no turn
 
     CHECK_THROWS_AS(merchant.coup(judge), std::runtime_error);
-    CHECK_THROWS_WITH(merchant.coup(judge), "Not merchant's turn");
+    CHECK_THROWS_WITH(merchant.coup(judge), "Not merchant's turn");// coup with no turn
 
     governor.gather();//gov=10
 
     CHECK_THROWS_AS(baron.invest(), std::runtime_error);
-    CHECK_THROWS_WITH(baron.invest(), "Not baron's turn");
+    CHECK_THROWS_WITH(baron.invest(), "Not baron's turn");// invest with no turn
 
     spy.tax();//spy=8
     baron.invest();//baron=9
@@ -738,6 +740,7 @@ TEST_CASE("two players with same name") {
 
     Governor governor(game, "Haniel");
 
+    //try to create a player with the same name
     CHECK_THROWS_AS(Spy spy(game, "Haniel"), std::runtime_error);
     CHECK_THROWS_WITH(Spy spy(game, "Haniel"), "This name is already taken- please choose another one");
 
@@ -786,12 +789,12 @@ TEST_CASE("operate when block") {
 
     general.arrest(governor);//general=5
     general.bribe();//general=1
-    CHECK(game.turn() == "Dagan");//check that the turn is still on "Dagan" after bribe
+    CHECK(game.turn() == "Dagan");//check that the turn is still on "Dagan(general)" after bribe
 
     //check the undo operation on bribe
     judge.undo(general);//general=1
-    CHECK(game.turn() == "Hadar");//check that the turn is continue to Hadar(Judge) after undo
-    CHECK(general.coins() == 1); // check that the general has 1 coins after undo
+    CHECK(game.turn() == "Hadar");//check that the turn is continue to Hadar(Judge) after undo bribe
+    CHECK(general.coins() == 1); // check that the general has 1 coins after undo(mean that he lose his coins for bribe)
 }
 
 
