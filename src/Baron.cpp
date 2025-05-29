@@ -3,6 +3,7 @@
 #include <stdexcept>
 
 #include "Baron.hpp"
+
 using std::string;
 
 //Defines the `Baron` class, a subclass of `Player` in the `coup` namespace.
